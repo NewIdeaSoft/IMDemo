@@ -9,6 +9,7 @@ public class UserInfo {
     private String mHxid;
     private String mNick;
     private String mPhoto;
+    private String mPassword;
 
     public String getName() {
         return mName;
@@ -40,5 +41,13 @@ public class UserInfo {
 
     public void setPhoto(String photo) {
         mPhoto = photo;
+    }
+
+    public String getPassword() {
+        return mPassword;
+    }
+
+    public void setPassword(String password) {
+        mPassword = password;
     }
 }

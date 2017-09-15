@@ -1,15 +1,19 @@
 package com.nisoft.imdemo.controller.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.hyphenate.chat.EMClient;
 import com.nisoft.imdemo.R;
 import com.nisoft.imdemo.module.Module;
+import com.nisoft.imdemo.module.bean.UserInfo;
 
-public class LauncherActivity extends AppCompatActivity {
+public class LauncherActivity extends Activity {
+
+    private static final String TAG = "LauncherActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +38,8 @@ public class LauncherActivity extends AppCompatActivity {
                 Intent intent;
                 if(EMClient.getInstance().isLoggedInBefore()) {
                     //获取用户数据
-
+                    UserInfo exitUerInfo = Module.getInstance().getUserDao().getExitUerInfo();
+                    Log.e(TAG, "exitUserInfo:"+exitUerInfo.toString());
                     intent = new Intent(LauncherActivity.this,MainActivity.class);
                 }else{
                     intent = new Intent(LauncherActivity.this,LoginActivity.class);

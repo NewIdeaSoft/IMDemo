@@ -2,6 +2,8 @@ package com.nisoft.imdemo.module;
 
 import android.content.Context;
 
+import com.nisoft.imdemo.module.dao.UserDao;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,6 +15,7 @@ public class Module {
     private static Module sModule = new Module();
     private Context mContext;
     private ExecutorService mExecutors = Executors.newCachedThreadPool();//创建线程池
+    private UserDao mUserDao;
     private Module(){
 
     }
@@ -27,5 +30,11 @@ public class Module {
 
     public ExecutorService getGlobalThreadPool(){
         return mExecutors;
+    }
+    public UserDao getUserDao(){
+        if(mUserDao ==null) {
+            mUserDao = new UserDao(mContext);
+        }
+        return mUserDao;
     }
 }
