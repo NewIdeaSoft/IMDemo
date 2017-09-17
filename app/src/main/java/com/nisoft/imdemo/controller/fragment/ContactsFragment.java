@@ -19,6 +19,14 @@ public class ContactsFragment extends EaseContactListFragment {
     protected void initView() {
         super.initView();
         titleBar.setTitle("联系人");
+        titleBar.setRightImageResource(R.drawable.em_add);
+        titleBar.setRightLayoutClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(),NewFriendActivity.class);
+                startActivity(intent);
+            }
+        });
         View view = View.inflate(getActivity(), R.layout.header_fragment_main_contacts, null);
         ll_fragment_main_contacts_new_friend =
                 (LinearLayout) view.findViewById(R.id.ll_fragment_main_contacts_new_friend);
@@ -27,8 +35,7 @@ public class ContactsFragment extends EaseContactListFragment {
         ll_fragment_main_contacts_new_friend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(),NewFriendActivity.class);
-                startActivity(intent);
+
             }
         });
 
