@@ -7,34 +7,48 @@
     android:padding="10dp">
 
     <LinearLayout
+        android:id="@+id/ll_fragment_main_contacts_new_friend"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/ll_fragment_main_contacts_new_friend">
+        android:layout_height="wrap_content">
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/em_new_friends_icon"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="好友邀请"
+            android:layout_marginLeft="10dp"
             android:gravity="center_vertical"
-            android:layout_marginLeft="10dp"/>
+            android:text="好友邀请"/>
+
+        <ImageView
+            android:id="@+id/iv_fragment_contact_new_invitation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:src="@android:drawable/ic_notification_overlay"
+            />
     </LinearLayout>
+
     <LinearLayout
+        android:id="@+id/ll_fragment_main_contacts_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:id="@+id/ll_fragment_main_contacts_group" >
+        android:layout_marginTop="4dp">
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/em_group_icon"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="群组"
+            android:layout_marginLeft="10dp"
             android:gravity="center_vertical"
-            android:layout_marginLeft="10dp"/>
+            android:text="群组"/>
     </LinearLayout>
 </LinearLayout>

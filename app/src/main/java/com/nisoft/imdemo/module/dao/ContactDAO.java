@@ -17,6 +17,7 @@ import java.util.List;
 
 public class ContactDAO {
     private SQLiteOpenHelper mHelper;
+    private static ContactDAO sContactDao;
     public ContactDAO(SQLiteOpenHelper helper) {
         mHelper = helper;
     }

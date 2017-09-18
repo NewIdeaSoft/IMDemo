@@ -2,7 +2,12 @@ package com.nisoft.imdemo.module;
 
 import android.content.Context;
 
+import com.nisoft.imdemo.module.bean.UserInfo;
+import com.nisoft.imdemo.module.dao.ContactDAO;
+import com.nisoft.imdemo.module.dao.InvitationDAO;
 import com.nisoft.imdemo.module.dao.UserDao;
+import com.nisoft.imdemo.module.db.ContactDB;
+import com.nisoft.imdemo.module.db.DBManager;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,6 +21,8 @@ public class Module {
     private Context mContext;
     private ExecutorService mExecutors = Executors.newCachedThreadPool();//创建线程池
     private UserDao mUserDao;
+    private DBManager mDbManager;
+
     private Module(){
 
     }
@@ -26,6 +33,7 @@ public class Module {
 
     public void init(Context context){
         mContext = context;
+        new EventListener(mContext);
     }
 
     public ExecutorService getGlobalThreadPool(){
@@ -36,5 +44,18 @@ public class Module {
             mUserDao = new UserDao(mContext);
         }
         return mUserDao;
+    }
+    public void onLoginSuccess(UserInfo account){
+        if(account==null) {
+            return;
+        }
+        if(mDbManager!=null) {
+            mDbManager.close();
+        }
+        mDbManager = new DBManager(mContext,account.getName());
+    }
+
+    public DBManager getDbManager() {
+        return mDbManager;
     }
 }

@@ -67,8 +67,7 @@ public class InvitationDAO {
             invitation.setGroupId(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_HXID)));
             invitation.setGroupName(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_NAME)));
             invitation.setReason(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_REASON)));
-//            invitation.setState(cursor.getInt(cursor.getColumnIndex(InvitationTable.COL_STATE)));
-
+            invitation.setState(int2InvokeState(cursor.getInt(cursor.getColumnIndex(InvitationTable.COL_STATE))));
         }
         cursor.close();
         return invitation;
@@ -90,7 +89,7 @@ public class InvitationDAO {
         ContentValues values = ContactDAO.getContentValues(invitation.getUserInfo());
         values.put(InvitationTable.COL_GROUP_HXID, invitation.getGroupId());
         values.put(InvitationTable.COL_GROUP_NAME, invitation.getGroupName());
-//        values.put(InvitationTable.COL_STATE,invitation.getGroupId());
+        values.put(InvitationTable.COL_STATE,invitation.getState().ordinal());
         SQLiteDatabase database = mHelper.getReadableDatabase();
         database.replace(InvitationTable.TABLE_NAME, null, values);
     }
@@ -137,6 +136,5 @@ public class InvitationDAO {
         }
         return null;
     }
-
 
 }

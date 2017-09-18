@@ -39,8 +39,13 @@ public class LauncherActivity extends Activity {
                 if(EMClient.getInstance().isLoggedInBefore()) {
                     //获取用户数据
                     UserInfo exitUerInfo = Module.getInstance().getUserDao().getExitUerInfo();
-                    Log.e(TAG, "exitUserInfo:"+exitUerInfo.toString());
-                    intent = new Intent(LauncherActivity.this,MainActivity.class);
+                    if(exitUerInfo == null) {
+                        intent = new Intent(LauncherActivity.this,LoginActivity.class);
+                    }else{
+                        Module.getInstance().onLoginSuccess(exitUerInfo);
+                        Log.e(TAG, "exitUserInfo:"+exitUerInfo.toString());
+                        intent = new Intent(LauncherActivity.this,MainActivity.class);
+                    }
                 }else{
                     intent = new Intent(LauncherActivity.this,LoginActivity.class);
                 }

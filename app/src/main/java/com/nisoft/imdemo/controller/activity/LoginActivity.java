@@ -39,7 +39,8 @@ public class LoginActivity extends Activity {
         btn_login_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(getInputData()) {//如果输入的用户名或密码不为空
+                if(getInputData()) {
+                    //如果输入的用户名或密码不为空
 
                     //登陆请求
                     Module.getInstance().getGlobalThreadPool().execute(new Runnable() {
@@ -48,14 +49,15 @@ public class LoginActivity extends Activity {
                             EMClient.getInstance().login(mInputName, mInputPassword, new EMCallBack() {
                                 @Override
                                 public void onSuccess() {
+                                    UserInfo user = new UserInfo();
+                                    user.setName(mInputName);
+                                    user.setPassword(mInputPassword);
+                                    Module.getInstance().getUserDao().putUserInfo(user);
+                                    Module.getInstance().onLoginSuccess(user);
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
                                             //保存用户名密码用户数据
-                                            UserInfo user = new UserInfo();
-                                            user.setName(mInputName);
-                                            user.setPassword(mInputPassword);
-                                            Module.getInstance().getUserDao().putUserInfo(user);
                                             Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                                             startActivity(intent);
                                             finish();

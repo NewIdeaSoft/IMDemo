@@ -47,6 +47,7 @@ public class SettingFragment extends Fragment {
                         EMClient.getInstance().logout(false, new EMCallBack() {
                             @Override
                             public void onSuccess() {
+                                Module.getInstance().getDbManager().close();
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {

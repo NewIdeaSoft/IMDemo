@@ -11,6 +11,13 @@ public class UserInfo {
     private String mPhoto;
     private String mPassword;
 
+    public UserInfo() {
+    }
+
+    public UserInfo(String name) {
+        mName = name;
+    }
+
     public String getName() {
         return mName;
     }
