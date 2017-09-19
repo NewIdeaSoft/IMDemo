@@ -26,9 +26,6 @@ public class InvitationDAO {
         String sql = "select * from " + InvitationTable.TABLE_NAME + ";";
         SQLiteDatabase database = mHelper.getReadableDatabase();
         Cursor cursor = database.rawQuery(sql, null);
-        if (cursor.getCount() <= 0) {
-            return null;
-        }
         List<Invitation> invitationList = new ArrayList<>();
         while (cursor.moveToNext()) {
             Invitation invitation = new Invitation();

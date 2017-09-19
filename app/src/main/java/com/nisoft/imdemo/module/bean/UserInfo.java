@@ -16,6 +16,7 @@ public class UserInfo {
 
     public UserInfo(String name) {
         mName = name;
+        mHxid = name;
     }
 
     public String getName() {
