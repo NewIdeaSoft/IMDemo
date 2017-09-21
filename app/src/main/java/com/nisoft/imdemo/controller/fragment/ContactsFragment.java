@@ -5,25 +5,41 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.ui.EaseContactListFragment;
+import com.hyphenate.exceptions.HyphenateException;
 import com.nisoft.imdemo.R;
 import com.nisoft.imdemo.controller.activity.InvitationListActivity;
 import com.nisoft.imdemo.controller.activity.NewFriendActivity;
+import com.nisoft.imdemo.module.Module;
+import com.nisoft.imdemo.module.bean.UserInfo;
 import com.nisoft.imdemo.utils.Constant;
 import com.nisoft.imdemo.utils.SpUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2017/9/15.
  */
 
 public class ContactsFragment extends EaseContactListFragment {
+    private static final String TAG = "ContactsFragment";
     private LinearLayout ll_fragment_main_contacts_new_friend;
     private LinearLayout ll_fragment_main_contacts_group;
     private ImageView iv_fragment_contact_new_invitation;
+
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -31,6 +47,7 @@ public class ContactsFragment extends EaseContactListFragment {
             SpUtil.getInstance().put(SpUtil.IS_CONTACT_CHANGED,true);
         }
     };
+    private String mHxid;
 
     @Override
     protected void initView() {
@@ -68,6 +85,48 @@ public class ContactsFragment extends EaseContactListFragment {
             }
         });
         listView.addHeaderView(view);
+        getContactsFromServer();
+        registerForContextMenu(listView);
+    }
+
+    private void getContactsFromServer() {
+        Module.getInstance().getGlobalThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    List<String> allContacts = EMClient.getInstance().contactManager().getAllContactsFromServer();
+                    if(allContacts==null ||allContacts.size()==0)return;
+                    Log.e(TAG,allContacts.size()+"个联系人");
+                    List<UserInfo> contactList = new ArrayList<>();
+                    for (String hxid:allContacts){
+                        UserInfo userInfo = new UserInfo(hxid);
+                        contactList.add(userInfo);
+                    }
+                    Module.getInstance().getDbManager().getContactDAO().addContacts(contactList);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshContacts();
+                        }
+                    });
+                } catch (HyphenateException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void refreshContacts() {
+        List<UserInfo> contacts = Module.getInstance().getDbManager().getContactDAO().getAllContacts();
+        Map<String,EaseUser> contactsMap = new HashMap<>();
+        if(contacts == null ||contacts.size()==0) {
+            return;
+        }
+        for (UserInfo userInfo : contacts) {
+            contactsMap.put(userInfo.getHxid(),new EaseUser(userInfo.getHxid()));
+        }
+        setContactsMap(contactsMap);
+        refresh();
     }
 
     private void updateRedPoint() {
@@ -87,9 +146,45 @@ public class ContactsFragment extends EaseContactListFragment {
         getActivity().unregisterReceiver(mReceiver);
     }
 
+
     @Override
-    public void onResume() {
-        super.onResume();
-        updateRedPoint();
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        int position = ((AdapterView.AdapterContextMenuInfo)menuInfo).position;
+        mHxid = ((EaseUser) listView.getItemAtPosition(position)).getUsername();
+        getActivity().getMenuInflater().inflate(R.menu.delete,menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu_delete:
+                deleteContact();
+                return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private void deleteContact() {
+        Module.getInstance().getGlobalThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    EMClient.getInstance().contactManager().deleteContact(mHxid);
+                    Module.getInstance().getDbManager().getContactDAO().deleteContact(mHxid);
+                    if(getActivity()==null) {
+                        return;
+                    }
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshContacts();
+                        }
+                    });
+                } catch (HyphenateException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

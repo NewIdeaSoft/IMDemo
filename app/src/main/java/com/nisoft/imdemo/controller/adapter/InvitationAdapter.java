@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nisoft.imdemo.R;
@@ -57,9 +58,18 @@ public class InvitationAdapter extends BaseAdapter {
             holder.mTextViewReason = (TextView) convertView.findViewById(R.id.tv_invitation_reason);
             holder.mAcceptButton = (Button) convertView.findViewById(R.id.btn_invitation_accept);
             holder.mRejectButton = (Button) convertView.findViewById(R.id.btn_invitation_reject);
+            holder.mLinearLayoutButtons = (LinearLayout) convertView.findViewById(R.id.ll_item_invitation_buttons);
+            holder.mTextViewStateInfo = (TextView) convertView.findViewById(R.id.tv_state_info);
             convertView.setTag(holder);
         }else{
             holder = (ViewHolder) convertView.getTag();
+        }
+
+        if(mCurrentInvitation.getState() == Invitation.InvokeState.NEW_SELF_INVITE) {
+            holder.mLinearLayoutButtons.setVisibility(View.GONE);
+            holder.mTextViewStateInfo.setText("等待对方处理好友请求");
+        }else{
+            holder.mTextViewStateInfo.setVisibility(View.GONE);
         }
         holder.mTextViewName.setText(mCurrentInvitation.getUserInfo().getHxid());
         holder.mTextViewReason.setText(mCurrentInvitation.getReason());
@@ -88,5 +98,7 @@ public class InvitationAdapter extends BaseAdapter {
         TextView mTextViewReason;
         Button mAcceptButton;
         Button mRejectButton;
+        TextView mTextViewStateInfo;
+        LinearLayout mLinearLayoutButtons;
     }
 }

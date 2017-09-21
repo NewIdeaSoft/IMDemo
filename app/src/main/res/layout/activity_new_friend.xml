@@ -39,7 +39,8 @@
     <LinearLayout
         android:id="@+id/ll_new_friend_search_result"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/iv_new_friend_search_result_icon"

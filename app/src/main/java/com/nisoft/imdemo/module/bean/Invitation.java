@@ -13,6 +13,7 @@ public class Invitation {
 
     public enum InvokeState{
         NEW_INVITE,
+        NEW_SELF_INVITE,//自己发送的新邀请
         INVITE_ACCEPT,//接受邀请
         INVITE_ACCEPT_BY_PEER,// 邀请被接受
         //收到邀请去加入群

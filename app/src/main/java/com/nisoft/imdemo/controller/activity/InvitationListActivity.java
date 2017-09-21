@@ -12,11 +12,12 @@ import com.nisoft.imdemo.controller.adapter.InvitationAdapter;
 import com.nisoft.imdemo.module.Module;
 import com.nisoft.imdemo.module.bean.Invitation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class InvitationListActivity extends Activity {
     private ListView lv_invitation;
-    private List<Invitation> mInvitationList;
+    private List<Invitation> mInvitationList = new ArrayList<>();
     private InvitationAdapter mAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +28,6 @@ public class InvitationListActivity extends Activity {
     }
 
     private void initData() {
-        mInvitationList = Module.getInstance().getDbManager().getInvitationDAO().findAll();
         mAdapter = new InvitationAdapter(this, new InvitationAdapter.ItemButtonClickListener() {
             @Override
             public void onAcceptButtonClick(final Invitation invitation) {
@@ -36,21 +36,64 @@ public class InvitationListActivity extends Activity {
                     public void run() {
                         try {
                             EMClient.getInstance().contactManager().acceptInvitation(invitation.getUserInfo().getHxid());
-                        } catch (HyphenateException e) {
+                            Module.getInstance().getDbManager().getInvitationDAO().updateInvitation(invitation.getUserInfo().getHxid(), Invitation.InvokeState.INVITE_ACCEPT);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(InvitationListActivity.this, "成功接受好友邀请！", Toast.LENGTH_SHORT).show();
+                                    //刷新页面
+                                    refreshInvitationList();
+                                }
+                            });
+                        } catch (final HyphenateException e) {
                             e.printStackTrace();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(InvitationListActivity.this, "操作失败！错误："+e.toString(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
-                        Module.getInstance().getDbManager().getInvitationDAO().updateInvitation(invitation.getUserInfo().getHxid(), Invitation.InvokeState.INVITE_ACCEPT);
                     }
                 });
 
             }
 
             @Override
-            public void onRejectButtonClick(Invitation invitation) {
-
+            public void onRejectButtonClick(final Invitation invitation) {
+                Module.getInstance().getGlobalThreadPool().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            EMClient.getInstance().contactManager().declineInvitation(invitation.getUserInfo().getHxid());
+                            Module.getInstance().getDbManager().getInvitationDAO().deleteInvitation(invitation.getUserInfo().getHxid());
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(InvitationListActivity.this, "拒绝了对方的好友请求！", Toast.LENGTH_SHORT).show();
+                                    refreshInvitationList();
+                                }
+                            });
+                        } catch (HyphenateException e) {
+                            e.printStackTrace();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(InvitationListActivity.this, "操作失败！", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                });
             }
         });
         lv_invitation.setAdapter(mAdapter);
+        refreshInvitationList();
+    }
+
+    private void refreshInvitationList() {
+        mInvitationList.clear();
+        mInvitationList.addAll(Module.getInstance().getDbManager().getInvitationDAO().findAll());
         mAdapter.refreshData(mInvitationList);
     }
 

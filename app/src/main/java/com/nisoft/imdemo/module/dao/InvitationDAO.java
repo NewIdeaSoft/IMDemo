@@ -38,7 +38,7 @@ public class InvitationDAO {
             invitation.setGroupId(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_HXID)));
             invitation.setGroupName(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_NAME)));
             invitation.setReason(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_REASON)));
-//            invitation.setState(cursor.getInt(cursor.getColumnIndex(InvitationTable.COL_STATE)));
+            invitation.setState(int2InvokeState(cursor.getInt(cursor.getColumnIndex(InvitationTable.COL_STATE))));
             invitationList.add(invitation);
         }
         cursor.close();
@@ -72,14 +72,14 @@ public class InvitationDAO {
 
     public void updateInvitation(String hxid, Invitation.InvokeState state) {
         SQLiteDatabase database = mHelper.getReadableDatabase();
-        String sql = "update table " + InvitationTable.TABLE_NAME + " set " + InvitationTable.COL_STATE +
-                "=" + state + " where " + InvitationTable.COL_HXID + "=" + hxid;
+        String sql = "update " + InvitationTable.TABLE_NAME + " set " + InvitationTable.COL_STATE +
+                "=" + state.ordinal() + " where " + InvitationTable.COL_HXID + "='" + hxid +"';";
         database.execSQL(sql);
     }
 
     public void deleteInvitation(String hxid) {
         SQLiteDatabase database = mHelper.getReadableDatabase();
-        database.delete(InvitationTable.TABLE_NAME, InvitationTable.COL_HXID, new String[]{hxid});
+        database.delete(InvitationTable.TABLE_NAME, InvitationTable.COL_HXID+"=?", new String[]{hxid});
     }
 
     public void addInvitation(Invitation invitation) {
@@ -94,6 +94,9 @@ public class InvitationDAO {
     private Invitation.InvokeState int2InvokeState(int state) {
         if (state == Invitation.InvokeState.NEW_INVITE.ordinal()) {
             return Invitation.InvokeState.NEW_INVITE;
+        }
+        if(state == Invitation.InvokeState.NEW_SELF_INVITE.ordinal()) {
+            return Invitation.InvokeState.NEW_SELF_INVITE;
         }
         if (state == Invitation.InvokeState.INVITE_ACCEPT.ordinal()) {
             return Invitation.InvokeState.INVITE_ACCEPT;

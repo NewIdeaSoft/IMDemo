@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.hyphenate.easeui.domain.EaseUser;
 import com.nisoft.imdemo.module.bean.UserInfo;
 
 import java.util.ArrayList;
@@ -114,5 +115,15 @@ public class ContactDAO {
         }
         SQLiteDatabase readableDatabase = mHelper.getReadableDatabase();
         readableDatabase.delete(ContactTable.TABLE_NAME,ContactTable.COL_HXID,new String[]{hxid});
+    }
+
+    public void addContacts(List<UserInfo> contactList) {
+        if(contactList==null ||contactList.size()==0) {
+            return;
+        }else{
+            for (UserInfo userInfo : contactList) {
+                addContact(userInfo);
+            }
+        }
     }
 }
