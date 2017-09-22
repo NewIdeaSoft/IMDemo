@@ -1,6 +1,7 @@
 package com.nisoft.imdemo.module;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.nisoft.imdemo.module.bean.UserInfo;
 import com.nisoft.imdemo.module.dao.ContactDAO;
@@ -53,6 +54,7 @@ public class Module {
             mDbManager.close();
         }
         mDbManager = new DBManager(mContext,account.getName());
+        Log.e("TAG", "account.getName()="+account.getName());
     }
 
     public DBManager getDbManager() {

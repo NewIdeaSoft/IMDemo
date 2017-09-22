@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -39,12 +40,18 @@ public class ContactsFragment extends EaseContactListFragment {
     private LinearLayout ll_fragment_main_contacts_new_friend;
     private LinearLayout ll_fragment_main_contacts_group;
     private ImageView iv_fragment_contact_new_invitation;
-
+    private LocalBroadcastManager mBroadcastManager;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             iv_fragment_contact_new_invitation.setVisibility(View.VISIBLE);
-            SpUtil.getInstance().put(SpUtil.IS_CONTACT_CHANGED,true);
+            SpUtil.getInstance().put(SpUtil.IS_CONTACT_CHANGED, true);
+        }
+    };
+    private BroadcastReceiver mContactChangedReciever = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            refreshContacts();
         }
     };
     private String mHxid;
@@ -72,8 +79,8 @@ public class ContactsFragment extends EaseContactListFragment {
         ll_fragment_main_contacts_new_friend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SpUtil.getInstance().put(SpUtil.IS_CONTACT_CHANGED,false);
-                Intent intent = new Intent(getActivity(),InvitationListActivity.class);
+                SpUtil.getInstance().put(SpUtil.IS_CONTACT_CHANGED, false);
+                Intent intent = new Intent(getActivity(), InvitationListActivity.class);
                 startActivity(intent);
             }
         });
@@ -95,10 +102,11 @@ public class ContactsFragment extends EaseContactListFragment {
             public void run() {
                 try {
                     List<String> allContacts = EMClient.getInstance().contactManager().getAllContactsFromServer();
-                    if(allContacts==null ||allContacts.size()==0)return;
-                    Log.e(TAG,allContacts.size()+"个联系人");
+                    if (allContacts == null || allContacts.size() == 0) return;
+                    Log.e(TAG, allContacts.size() + "个联系人");
                     List<UserInfo> contactList = new ArrayList<>();
-                    for (String hxid:allContacts){
+                    for (String hxid : allContacts) {
+                        Log.e(TAG, "hxid:"+hxid);
                         UserInfo userInfo = new UserInfo(hxid);
                         contactList.add(userInfo);
                     }
@@ -110,7 +118,7 @@ public class ContactsFragment extends EaseContactListFragment {
                         }
                     });
                 } catch (HyphenateException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, e.toString());
                 }
             }
         });
@@ -118,46 +126,52 @@ public class ContactsFragment extends EaseContactListFragment {
 
     private void refreshContacts() {
         List<UserInfo> contacts = Module.getInstance().getDbManager().getContactDAO().getAllContacts();
-        Map<String,EaseUser> contactsMap = new HashMap<>();
-        if(contacts == null ||contacts.size()==0) {
+        Map<String, EaseUser> contactsMap = new HashMap<>();
+
+        if (contacts == null || contacts.size() == 0) {
+            Log.e(TAG, "refreshContacts："+0);
             return;
         }
+        Log.e(TAG, "refreshContacts："+contacts.size());
         for (UserInfo userInfo : contacts) {
-            contactsMap.put(userInfo.getHxid(),new EaseUser(userInfo.getHxid()));
+            contactsMap.put(userInfo.getHxid(), new EaseUser(userInfo.getHxid()));
         }
         setContactsMap(contactsMap);
         refresh();
     }
 
     private void updateRedPoint() {
-        boolean isContactChanged = SpUtil.getInstance().getBoolean(SpUtil.IS_CONTACT_CHANGED,false);
-        iv_fragment_contact_new_invitation.setVisibility(isContactChanged?View.VISIBLE:View.GONE);
+        boolean isContactChanged = SpUtil.getInstance().getBoolean(SpUtil.IS_CONTACT_CHANGED, false);
+        iv_fragment_contact_new_invitation.setVisibility(isContactChanged ? View.VISIBLE : View.GONE);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getActivity().registerReceiver(mReceiver, new IntentFilter(Constant.INVITATION_CHANGED));
+        mBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
+        mBroadcastManager.registerReceiver(mReceiver,new IntentFilter(Constant.INVITATION_CHANGED));
+        mBroadcastManager.registerReceiver(mContactChangedReciever,new IntentFilter(Constant.CONTACT_CHANGED));
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        getActivity().unregisterReceiver(mReceiver);
+        mBroadcastManager.unregisterReceiver(mReceiver);
+        mBroadcastManager.unregisterReceiver(mContactChangedReciever);
     }
 
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        int position = ((AdapterView.AdapterContextMenuInfo)menuInfo).position;
+        int position = ((AdapterView.AdapterContextMenuInfo) menuInfo).position;
         mHxid = ((EaseUser) listView.getItemAtPosition(position)).getUsername();
-        getActivity().getMenuInflater().inflate(R.menu.delete,menu);
+        getActivity().getMenuInflater().inflate(R.menu.delete, menu);
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.menu_delete:
                 deleteContact();
                 return true;
@@ -172,7 +186,7 @@ public class ContactsFragment extends EaseContactListFragment {
                 try {
                     EMClient.getInstance().contactManager().deleteContact(mHxid);
                     Module.getInstance().getDbManager().getContactDAO().deleteContact(mHxid);
-                    if(getActivity()==null) {
+                    if (getActivity() == null) {
                         return;
                     }
                     getActivity().runOnUiThread(new Runnable() {

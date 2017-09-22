@@ -52,6 +52,7 @@ public class EventListener {
 
         @Override
         public void onFriendRequestDeclined(String s) {
+            Module.getInstance().getDbManager().getInvitationDAO().deleteInvitation(s);
             SpUtil.getInstance().put(SpUtil.IS_CONTACT_CHANGED,true);
             mLocalBroadcast.sendBroadcast(new Intent(Constant.INVITATION_CHANGED));
         }

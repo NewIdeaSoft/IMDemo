@@ -90,13 +90,13 @@ public class NewFriendActivity extends Activity {
                 try {
                     EMClient.getInstance().contactManager().addContact(mNewFriendInfo.getName(), "添加好友");
                     toastText = "添加成功！";
-                    Invitation invitation = new Invitation();
-                    String friendName = tv_new_friend_search_result_name.getText().toString();
-                    UserInfo userInfo = new UserInfo(friendName);
-                    invitation.setUserInfo(userInfo);
-                    invitation.setReason("向对方发送了一个好友请求");
-                    invitation.setState(Invitation.InvokeState.NEW_SELF_INVITE);
-                    Module.getInstance().getDbManager().getInvitationDAO().addInvitation(invitation);
+//                    Invitation invitation = new Invitation();
+//                    String friendName = tv_new_friend_search_result_name.getText().toString();
+//                    UserInfo userInfo = new UserInfo(friendName);
+//                    invitation.setUserInfo(userInfo);
+//                    invitation.setReason("向对方发送了一个好友请求");
+//                    invitation.setState(Invitation.InvokeState.NEW_SELF_INVITE);
+//                    Module.getInstance().getDbManager().getInvitationDAO().addInvitation(invitation);
                 } catch (HyphenateException e) {
                     e.printStackTrace();
                     toastText = "添加失败！错误：" + e.toString();

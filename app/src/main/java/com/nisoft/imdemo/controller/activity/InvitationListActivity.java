@@ -1,7 +1,12 @@
 package com.nisoft.imdemo.controller.activity;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -11,6 +16,7 @@ import com.nisoft.imdemo.R;
 import com.nisoft.imdemo.controller.adapter.InvitationAdapter;
 import com.nisoft.imdemo.module.Module;
 import com.nisoft.imdemo.module.bean.Invitation;
+import com.nisoft.imdemo.utils.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +25,16 @@ public class InvitationListActivity extends Activity {
     private ListView lv_invitation;
     private List<Invitation> mInvitationList = new ArrayList<>();
     private InvitationAdapter mAdapter;
+    private LocalBroadcastManager mLBM;
+    private BroadcastReceiver invitationChangedReceiver =new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction() .equals(Constant.INVITATION_CHANGED)) {
+                refreshInvitationList();
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,7 +43,13 @@ public class InvitationListActivity extends Activity {
         initData();
     }
 
+    /**
+     * 初始化数据
+     */
     private void initData() {
+        //初始化
+        mLBM = LocalBroadcastManager.getInstance(this);
+        mLBM.registerReceiver(invitationChangedReceiver,new IntentFilter(Constant.INVITATION_CHANGED));
         mAdapter = new InvitationAdapter(this, new InvitationAdapter.ItemButtonClickListener() {
             @Override
             public void onAcceptButtonClick(final Invitation invitation) {
@@ -99,5 +121,11 @@ public class InvitationListActivity extends Activity {
 
     private void initView() {
         lv_invitation = (ListView)findViewById(R.id.lv_invitation);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mLBM.unregisterReceiver(invitationChangedReceiver);
     }
 }
