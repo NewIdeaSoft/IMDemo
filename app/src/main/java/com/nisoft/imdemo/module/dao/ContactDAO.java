@@ -121,7 +121,7 @@ public class ContactDAO {
             return;
         }
         SQLiteDatabase readableDatabase = mHelper.getReadableDatabase();
-        readableDatabase.delete(ContactTable.TABLE_NAME, ContactTable.COL_HXID, new String[]{hxid});
+        readableDatabase.delete(ContactTable.TABLE_NAME, ContactTable.COL_HXID+"=?", new String[]{hxid});
     }
 
     public void addContacts(List<UserInfo> contactList) {

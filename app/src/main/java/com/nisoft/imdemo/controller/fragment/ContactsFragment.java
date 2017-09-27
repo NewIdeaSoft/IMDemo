@@ -19,6 +19,7 @@ import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.ui.EaseContactListFragment;
 import com.hyphenate.exceptions.HyphenateException;
 import com.nisoft.imdemo.R;
+import com.nisoft.imdemo.controller.activity.ChattingActivity;
 import com.nisoft.imdemo.controller.activity.InvitationListActivity;
 import com.nisoft.imdemo.controller.activity.NewFriendActivity;
 import com.nisoft.imdemo.module.Module;
@@ -94,6 +95,16 @@ public class ContactsFragment extends EaseContactListFragment {
         listView.addHeaderView(view);
         getContactsFromServer();
         registerForContextMenu(listView);
+
+        setContactListItemClickListener(new EaseContactListItemClickListener() {
+            @Override
+            public void onListItemClicked(EaseUser user) {
+                Intent intent = new Intent(getActivity(), ChattingActivity.class);
+                intent.putExtra("hxid",user.getUsername());
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void getContactsFromServer() {
@@ -201,4 +212,5 @@ public class ContactsFragment extends EaseContactListFragment {
             }
         });
     }
+
 }
