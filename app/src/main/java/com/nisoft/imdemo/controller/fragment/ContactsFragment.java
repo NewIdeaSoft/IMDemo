@@ -20,6 +20,7 @@ import com.hyphenate.easeui.ui.EaseContactListFragment;
 import com.hyphenate.exceptions.HyphenateException;
 import com.nisoft.imdemo.R;
 import com.nisoft.imdemo.controller.activity.ChattingActivity;
+import com.nisoft.imdemo.controller.activity.GroupListActivity;
 import com.nisoft.imdemo.controller.activity.InvitationListActivity;
 import com.nisoft.imdemo.controller.activity.NewFriendActivity;
 import com.nisoft.imdemo.module.Module;
@@ -89,7 +90,8 @@ public class ContactsFragment extends EaseContactListFragment {
         ll_fragment_main_contacts_group.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(getActivity(),GroupListActivity.class);
+                startActivity(intent);
             }
         });
         listView.addHeaderView(view);
