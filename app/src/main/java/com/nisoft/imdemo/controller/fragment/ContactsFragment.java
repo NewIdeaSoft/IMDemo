@@ -50,13 +50,19 @@ public class ContactsFragment extends EaseContactListFragment {
             SpUtil.getInstance().put(SpUtil.IS_CONTACT_CHANGED, true);
         }
     };
-    private BroadcastReceiver mContactChangedReciever = new BroadcastReceiver() {
+    private BroadcastReceiver mContactChangedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             refreshContacts();
         }
     };
     private String mHxid;
+    private BroadcastReceiver mGroupChangedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            refreshContacts();
+        }
+    };
 
     @Override
     protected void initView() {
@@ -163,14 +169,16 @@ public class ContactsFragment extends EaseContactListFragment {
         super.onActivityCreated(savedInstanceState);
         mBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
         mBroadcastManager.registerReceiver(mReceiver,new IntentFilter(Constant.INVITATION_CHANGED));
-        mBroadcastManager.registerReceiver(mContactChangedReciever,new IntentFilter(Constant.CONTACT_CHANGED));
+        mBroadcastManager.registerReceiver(mContactChangedReceiver,new IntentFilter(Constant.CONTACT_CHANGED));
+        mBroadcastManager.registerReceiver(mGroupChangedReceiver,new IntentFilter(Constant.GROUP_INVITE_CHANGED));
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         mBroadcastManager.unregisterReceiver(mReceiver);
-        mBroadcastManager.unregisterReceiver(mContactChangedReciever);
+        mBroadcastManager.unregisterReceiver(mContactChangedReceiver);
+        mBroadcastManager.unregisterReceiver(mGroupChangedReceiver);
     }
 
 
@@ -210,6 +218,7 @@ public class ContactsFragment extends EaseContactListFragment {
                     });
                 } catch (HyphenateException e) {
                     e.printStackTrace();
+
                 }
             }
         });

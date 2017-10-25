@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.nisoft.imdemo.module.bean.Group;
 import com.nisoft.imdemo.module.bean.Invitation;
 import com.nisoft.imdemo.module.bean.UserInfo;
 
@@ -35,8 +36,10 @@ public class InvitationDAO {
             userInfo.setPhoto(cursor.getString(cursor.getColumnIndex(ContactTable.COL_PHOTO)));
             userInfo.setNick(cursor.getString(cursor.getColumnIndex(ContactTable.COL_NICK)));
             invitation.setUserInfo(userInfo);
-            invitation.setGroupId(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_HXID)));
-            invitation.setGroupName(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_NAME)));
+            String groupId=cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_HXID));
+            String groupName = cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_NAME));
+            Group group = new Group(groupId,groupName,"");
+            invitation.setGroup(group);
             invitation.setReason(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_REASON)));
             invitation.setState(int2InvokeState(cursor.getInt(cursor.getColumnIndex(InvitationTable.COL_STATE))));
             invitationList.add(invitation);
@@ -61,8 +64,10 @@ public class InvitationDAO {
             userInfo.setPhoto(cursor.getString(cursor.getColumnIndex(ContactTable.COL_PHOTO)));
             userInfo.setNick(cursor.getString(cursor.getColumnIndex(ContactTable.COL_NICK)));
             invitation.setUserInfo(userInfo);
-            invitation.setGroupId(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_HXID)));
-            invitation.setGroupName(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_NAME)));
+            String groupId=cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_HXID));
+            String groupName = cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_NAME));
+            Group group = new Group(groupId,groupName,"");
+            invitation.setGroup(group);
             invitation.setReason(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_REASON)));
             invitation.setState(int2InvokeState(cursor.getInt(cursor.getColumnIndex(InvitationTable.COL_STATE))));
         }
@@ -84,8 +89,8 @@ public class InvitationDAO {
 
     public void addInvitation(Invitation invitation) {
         ContentValues values = ContactDAO.getContentValues(invitation.getUserInfo());
-        values.put(InvitationTable.COL_GROUP_HXID, invitation.getGroupId());
-        values.put(InvitationTable.COL_GROUP_NAME, invitation.getGroupName());
+        values.put(InvitationTable.COL_GROUP_HXID, invitation.getGroup().getGroupId());
+        values.put(InvitationTable.COL_GROUP_NAME, invitation.getGroup().getGroupName());
         values.put(InvitationTable.COL_STATE,invitation.getState().ordinal());
         SQLiteDatabase database = mHelper.getReadableDatabase();
         database.replace(InvitationTable.TABLE_NAME, null, values);

@@ -7,8 +7,7 @@ package com.nisoft.imdemo.module.bean;
 public class Invitation {
     private UserInfo mUserInfo;
     private String mReason;
-    private String mGroupName;
-    private String mGroupId;
+    private Group mGroup;
     private InvokeState mState;
 
     public enum InvokeState{
@@ -54,20 +53,12 @@ public class Invitation {
         mReason = reason;
     }
 
-    public String getGroupName() {
-        return mGroupName;
+    public Group getGroup() {
+        return mGroup;
     }
 
-    public void setGroupName(String groupName) {
-        mGroupName = groupName;
-    }
-
-    public String getGroupId() {
-        return mGroupId;
-    }
-
-    public void setGroupId(String groupId) {
-        mGroupId = groupId;
+    public void setGroup(Group group) {
+        mGroup = group;
     }
 
     public InvokeState getState() {
