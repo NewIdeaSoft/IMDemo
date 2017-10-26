@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+    <com.hyphenate.easeui.widget.EaseTitleBar
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:titleBarTitle="群详情">
+
+    </com.hyphenate.easeui.widget.EaseTitleBar>
+    <GridView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/gv_group_detail_members">
+
+    </GridView>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@android:color/holo_red_light"
+        android:textColor="@android:color/white"
+        android:textSize="25sp"
+        android:gravity="center"
+        android:text="退出该群"
+        android:id="@+id/tv_group_detail_quit"/>
+</LinearLayout>

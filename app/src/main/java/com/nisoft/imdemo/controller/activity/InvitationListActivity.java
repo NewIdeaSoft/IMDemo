@@ -26,10 +26,10 @@ public class InvitationListActivity extends Activity {
     private List<Invitation> mInvitationList = new ArrayList<>();
     private InvitationAdapter mAdapter;
     private LocalBroadcastManager mLBM;
-    private BroadcastReceiver invitationChangedReceiver =new BroadcastReceiver() {
+    private BroadcastReceiver invitationChangedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction() .equals(Constant.INVITATION_CHANGED)) {
+            if (intent.getAction().equals(Constant.INVITATION_CHANGED)) {
                 refreshInvitationList();
             }
         }
@@ -49,10 +49,11 @@ public class InvitationListActivity extends Activity {
     private void initData() {
         //初始化
         mLBM = LocalBroadcastManager.getInstance(this);
-        mLBM.registerReceiver(invitationChangedReceiver,new IntentFilter(Constant.INVITATION_CHANGED));
+        mLBM.registerReceiver(invitationChangedReceiver, new IntentFilter(Constant.INVITATION_CHANGED));
+        mLBM.registerReceiver(invitationChangedReceiver, new IntentFilter(Constant.GROUP_INVITE_CHANGED));
         mAdapter = new InvitationAdapter(this, new InvitationAdapter.ItemButtonClickListener() {
             @Override
-            public void onAcceptButtonClick(final Invitation invitation) {
+            public void onAcceptContactInvitation(final Invitation invitation) {
                 Module.getInstance().getGlobalThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
@@ -72,7 +73,7 @@ public class InvitationListActivity extends Activity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(InvitationListActivity.this, "操作失败！错误："+e.toString(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(InvitationListActivity.this, "操作失败！错误：" + e.toString(), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -82,7 +83,7 @@ public class InvitationListActivity extends Activity {
             }
 
             @Override
-            public void onRejectButtonClick(final Invitation invitation) {
+            public void onRejectContactInvitation(final Invitation invitation) {
                 Module.getInstance().getGlobalThreadPool().execute(new Runnable() {
                     @Override
                     public void run() {
@@ -108,6 +109,136 @@ public class InvitationListActivity extends Activity {
                     }
                 });
             }
+
+            @Override
+            public void onAcceptGroupInvitation(final Invitation invitation) {
+                Module.getInstance().getGlobalThreadPool().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            EMClient.getInstance().groupManager()
+                                    .acceptInvitation(invitation.getGroup().getGroupId()
+                                            , invitation.getGroup().getInviterName());
+                            invitation.setState(Invitation.InvokeState.GROUP_ACCEPT_INVITE);
+                            Module.getInstance().getDbManager()
+                                    .getInvitationDAO()
+                                    .addInvitation(invitation);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    refreshInvitationList();
+                                }
+                            });
+                        } catch (HyphenateException e) {
+                            e.printStackTrace();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(InvitationListActivity.this, "操作失败，请重试！", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onRejectGroupInvitation(final Invitation invitation) {
+                Module.getInstance().getGlobalThreadPool().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            EMClient.getInstance().groupManager()
+                                    .declineInvitation(invitation.getGroup().getGroupId()
+                                            , invitation.getGroup().getInviterName()
+                                            , "拒绝了群邀请");
+                            invitation.setState(Invitation.InvokeState.GROUP_REJECT_INVITE);
+                            Module.getInstance().getDbManager()
+                                    .getInvitationDAO()
+                                    .addInvitation(invitation);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    refreshInvitationList();
+                                }
+                            });
+                        } catch (HyphenateException e) {
+                            e.printStackTrace();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(InvitationListActivity.this, "操作失败，请重试！", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onAcceptGroupApplication(final Invitation invitation) {
+                Module.getInstance().getGlobalThreadPool().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            EMClient.getInstance().groupManager()
+                                    .acceptInvitation(invitation.getGroup().getGroupId()
+                                            , invitation.getGroup().getInviterName());
+                            invitation.setState(Invitation.InvokeState.GROUPO_ACCEPT_APPLICATION);
+                            Module.getInstance().getDbManager()
+                                    .getInvitationDAO()
+                                    .addInvitation(invitation);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    refreshInvitationList();
+                                }
+                            });
+                        } catch (HyphenateException e) {
+                            e.printStackTrace();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(InvitationListActivity.this, "操作失败，请重试！", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onRejectGroupApplication(final Invitation invitation) {
+                Module.getInstance().getGlobalThreadPool().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            EMClient.getInstance().groupManager()
+                                    .declineApplication(invitation.getGroup().getGroupId()
+                                            , invitation.getGroup().getInviterName()
+                                            , "拒绝了群申请");
+                            invitation.setState(Invitation.InvokeState.GROUP_REJECT_APPLICATION);
+                            Module.getInstance().getDbManager()
+                                    .getInvitationDAO()
+                                    .addInvitation(invitation);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    refreshInvitationList();
+                                }
+                            });
+                        } catch (HyphenateException e) {
+                            e.printStackTrace();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(InvitationListActivity.this, "操作失败，请重试！", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                });
+            }
         });
         lv_invitation.setAdapter(mAdapter);
         refreshInvitationList();
@@ -120,7 +251,7 @@ public class InvitationListActivity extends Activity {
     }
 
     private void initView() {
-        lv_invitation = (ListView)findViewById(R.id.lv_invitation);
+        lv_invitation = (ListView) findViewById(R.id.lv_invitation);
     }
 
     @Override

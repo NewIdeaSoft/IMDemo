@@ -5,7 +5,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nisoft.imdemo.R;
@@ -61,16 +60,12 @@ public class InvitationAdapter extends BaseAdapter {
             holder.mTextViewReason = (TextView) convertView.findViewById(R.id.tv_invitation_reason);
             holder.mAcceptButton = (Button) convertView.findViewById(R.id.btn_invitation_accept);
             holder.mRejectButton = (Button) convertView.findViewById(R.id.btn_invitation_reject);
-            holder.mLinearLayoutButtons = (LinearLayout) convertView.findViewById(R.id.ll_item_invitation_buttons);
-            holder.mTextViewStateInfo = (TextView) convertView.findViewById(R.id.tv_state_info);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        holder.mLinearLayoutButtons.setVisibility(View.VISIBLE);
         holder.mAcceptButton.setVisibility(View.GONE);
         holder.mRejectButton.setVisibility(View.GONE);
-        holder.mTextViewStateInfo.setVisibility(View.GONE);
 //        if(mCurrentInvitation.getState() == Invitation.InvokeState.NEW_SELF_INVITE) {
 //            holder.mTextViewStateInfo.setVisibility(View.VISIBLE);
 //            holder.mTextViewStateInfo.setText("等待对方处理好友请求");
@@ -81,7 +76,67 @@ public class InvitationAdapter extends BaseAdapter {
 //        }
         UserInfo userInfo = mCurrentInvitation.getUserInfo();
         if (userInfo == null) {
-
+            holder.mTextViewName.setText(mCurrentInvitation.getGroup().getGroupName());
+            switch (mCurrentInvitation.getState()) {
+                case NEW_GROUP_INVITE:
+                    holder.mTextViewReason.setText("收到新的群邀请");
+                    holder.mAcceptButton.setVisibility(View.VISIBLE);
+                    holder.mRejectButton.setVisibility(View.VISIBLE);
+                    holder.mRejectButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mItemButtonClickListener.onRejectGroupInvitation(mCurrentInvitation);
+                        }
+                    });
+                    holder.mAcceptButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mItemButtonClickListener.onAcceptGroupInvitation(mCurrentInvitation);
+                        }
+                    });
+                    break;
+                case NEW_GROUP_APPLICATION:
+                    holder.mTextViewReason.setText("申请加入群");
+                    holder.mAcceptButton.setVisibility(View.VISIBLE);
+                    holder.mRejectButton.setVisibility(View.VISIBLE);
+                    holder.mRejectButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mItemButtonClickListener.onRejectGroupApplication(mCurrentInvitation);
+                        }
+                    });
+                    holder.mAcceptButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mItemButtonClickListener.onAcceptGroupApplication(mCurrentInvitation);
+                        }
+                    });
+                    break;
+                case GROUP_ACCEPT_INVITE:
+                    holder.mTextViewReason.setText("接受了对方的群邀请");
+                    break;
+                case GROUP_REJECT_INVITE:
+                    holder.mTextViewReason.setText("拒绝了对方的群邀请");
+                    break;
+                case GROUP_INVITE_ACCEPTED:
+                    holder.mTextViewReason.setText("接受了您的群邀请");
+                    break;
+                case GROUP_INVITE_DECLINED:
+                    holder.mTextViewReason.setText("拒绝了您的群邀请");
+                    break;
+                case GROUP_APPLICATION_ACCEPTED:
+                    holder.mTextViewReason.setText("接受了您的群申请");
+                    break;
+                case GROUP_APPLICATION_DECLINED:
+                    holder.mTextViewReason.setText("拒绝了您的群申请");
+                    break;
+                case GROUPO_ACCEPT_APPLICATION:
+                    holder.mTextViewReason.setText("接受对方加入群");
+                    break;
+                case GROUP_REJECT_APPLICATION:
+                    holder.mTextViewReason.setText("拒绝对方加入群");
+                    break;
+            }
 
         } else {
             holder.mTextViewName.setText(userInfo.getHxid());
@@ -99,36 +154,41 @@ public class InvitationAdapter extends BaseAdapter {
                     }
                     break;
                 case NEW_INVITE:
-                    if (mCurrentInvitation.getReason() == null) {
-                        holder.mTextViewReason.setText("对方请求添加您为好友");
-                    }
+
+                    holder.mTextViewReason.setText("对方请求添加您为好友");
                     holder.mAcceptButton.setVisibility(View.VISIBLE);
                     holder.mRejectButton.setVisibility(View.VISIBLE);
+                    holder.mRejectButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mItemButtonClickListener.onRejectContactInvitation(mCurrentInvitation);
+                        }
+                    });
+                    holder.mAcceptButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mItemButtonClickListener.onAcceptContactInvitation(mCurrentInvitation);
+                        }
+                    });
                     break;
                 default:
                     break;
             }
+
         }
 
-        holder.mRejectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mItemButtonClickListener.onRejectButtonClick(mCurrentInvitation);
-            }
-        });
-        holder.mAcceptButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mItemButtonClickListener.onAcceptButtonClick(mCurrentInvitation);
-            }
-        });
+
         return convertView;
     }
 
     public interface ItemButtonClickListener {
-        void onAcceptButtonClick(Invitation invitation);
+        void onAcceptContactInvitation(Invitation invitation);
 
-        void onRejectButtonClick(Invitation invitation);
+        void onRejectContactInvitation(Invitation invitation);
+        void onAcceptGroupInvitation(Invitation invitation);
+        void onRejectGroupInvitation(Invitation invitation);
+        void onAcceptGroupApplication(Invitation invitation);
+        void onRejectGroupApplication(Invitation invitation);
     }
 
     class ViewHolder {
@@ -136,7 +196,5 @@ public class InvitationAdapter extends BaseAdapter {
         TextView mTextViewReason;
         Button mAcceptButton;
         Button mRejectButton;
-        TextView mTextViewStateInfo;
-        LinearLayout mLinearLayoutButtons;
     }
 }

@@ -60,22 +60,15 @@ public class ContactsFragment extends EaseContactListFragment {
     private BroadcastReceiver mGroupChangedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            refreshContacts();
+            iv_fragment_contact_new_invitation.setVisibility(View.VISIBLE);
+            SpUtil.getInstance().put(SpUtil.IS_CONTACT_CHANGED, true);
         }
     };
 
     @Override
     protected void initView() {
         super.initView();
-        titleBar.setTitle("联系人");
         titleBar.setRightImageResource(R.drawable.em_add);
-        titleBar.setRightLayoutClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), NewFriendActivity.class);
-                startActivity(intent);
-            }
-        });
         View view = View.inflate(getActivity(), R.layout.header_fragment_main_contacts, null);
         ll_fragment_main_contacts_new_friend =
                 (LinearLayout) view.findViewById(R.id.ll_fragment_main_contacts_new_friend);
@@ -83,30 +76,16 @@ public class ContactsFragment extends EaseContactListFragment {
                 (LinearLayout) view.findViewById(R.id.ll_fragment_main_contacts_group);
         iv_fragment_contact_new_invitation =
                 (ImageView) view.findViewById(R.id.iv_fragment_contact_new_invitation);
-        updateRedPoint();
-        ll_fragment_main_contacts_new_friend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SpUtil.getInstance().put(SpUtil.IS_CONTACT_CHANGED, false);
-                Intent intent = new Intent(getActivity(), InvitationListActivity.class);
-                startActivity(intent);
-            }
-        });
 
-        ll_fragment_main_contacts_group.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(),GroupListActivity.class);
-                startActivity(intent);
-            }
-        });
         listView.addHeaderView(view);
-        getContactsFromServer();
-        registerForContextMenu(listView);
+
 
         setContactListItemClickListener(new EaseContactListItemClickListener() {
             @Override
             public void onListItemClicked(EaseUser user) {
+                if(user==null){
+                    return;
+                }
                 Intent intent = new Intent(getActivity(), ChattingActivity.class);
                 intent.putExtra("hxid",user.getUsername());
                 startActivity(intent);
@@ -167,10 +146,7 @@ public class ContactsFragment extends EaseContactListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
-        mBroadcastManager.registerReceiver(mReceiver,new IntentFilter(Constant.INVITATION_CHANGED));
-        mBroadcastManager.registerReceiver(mContactChangedReceiver,new IntentFilter(Constant.CONTACT_CHANGED));
-        mBroadcastManager.registerReceiver(mGroupChangedReceiver,new IntentFilter(Constant.GROUP_INVITE_CHANGED));
+
     }
 
     @Override
@@ -224,4 +200,38 @@ public class ContactsFragment extends EaseContactListFragment {
         });
     }
 
+    @Override
+    protected void setUpView() {
+        super.setUpView();
+        titleBar.setRightLayoutClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), NewFriendActivity.class);
+                startActivity(intent);
+            }
+        });
+        updateRedPoint();
+        ll_fragment_main_contacts_new_friend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SpUtil.getInstance().put(SpUtil.IS_CONTACT_CHANGED, false);
+                Intent intent = new Intent(getActivity(), InvitationListActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        ll_fragment_main_contacts_group.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(),GroupListActivity.class);
+                startActivity(intent);
+            }
+        });
+        mBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
+        mBroadcastManager.registerReceiver(mReceiver,new IntentFilter(Constant.INVITATION_CHANGED));
+        mBroadcastManager.registerReceiver(mContactChangedReceiver,new IntentFilter(Constant.CONTACT_CHANGED));
+        mBroadcastManager.registerReceiver(mGroupChangedReceiver,new IntentFilter(Constant.GROUP_INVITE_CHANGED));
+        getContactsFromServer();
+        registerForContextMenu(listView);
+    }
 }
