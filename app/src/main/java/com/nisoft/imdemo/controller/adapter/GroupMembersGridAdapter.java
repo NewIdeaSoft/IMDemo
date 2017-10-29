@@ -56,50 +56,53 @@ public abstract class GroupMembersGridAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         //处理界面显示的三种状态  可编辑非删除；可编辑删除；不可编辑
-        if(isCanModify) {
-            if(isDeleteState) {//可编辑删除
-                if(position<getCount()-2) {
-
-                        holder.mDeleteIcon.setVisibility(View.VISIBLE);
-
-                }else{
-                    holder.mDeleteIcon.setVisibility(View.GONE);
-                    holder.mImageView.setVisibility(View.GONE);
-                    holder.mTextView.setVisibility(View.GONE);
-
+        if (isCanModify) {
+            if (isDeleteState) {//可编辑删除
+                if (position < getCount() - 2) {
+                    holder.mImageView.setImageResource(R.drawable.em_default_avatar);
+                    holder.mDeleteIcon.setVisibility(View.VISIBLE);
+                } else {
+                    holder.mDeleteIcon.setVisibility(View.INVISIBLE);
+                    holder.mImageView.setVisibility(View.INVISIBLE);
+                    holder.mTextView.setVisibility(View.INVISIBLE);
                 }
-            }else {//可编辑非删除
+            } else {//可编辑非删除
                 if (position == getCount() - 2) {
                     holder.mImageView.setImageResource(R.drawable.em_smiley_add_btn_nor);
-                    holder.mTextView.setVisibility(View.GONE);
+                    holder.mTextView.setVisibility(View.INVISIBLE);
+                    holder.mDeleteIcon.setVisibility(View.INVISIBLE);
                 } else if (position == getCount() - 1) {
                     holder.mImageView.setImageResource(R.drawable.em_smiley_minus_btn_nor);
-                    holder.mTextView.setVisibility(View.GONE);
-                }else{
+                    holder.mTextView.setVisibility(View.INVISIBLE);
+                    holder.mDeleteIcon.setVisibility(View.INVISIBLE);
+                } else {
+                    holder.mImageView.setImageResource(R.drawable.em_default_avatar);
+                    holder.mTextView.setVisibility(View.VISIBLE);
                     holder.mTextView.setText((String) getItem(position));
                 }
             }
-        }else{//不可编辑
-            if(position<getCount()-2) {
-                holder.mDeleteIcon.setVisibility(View.GONE);
+        } else {//不可编辑
+            if (position < getCount() - 2) {
+                holder.mDeleteIcon.setVisibility(View.INVISIBLE);
                 holder.mTextView.setText(mGroupMembers.get(position));
-            }else{
-                holder.mDeleteIcon.setVisibility(View.GONE);
-                holder.mImageView.setVisibility(View.GONE);
-                holder.mTextView.setVisibility(View.GONE);
+                holder.mImageView.setImageResource(R.drawable.em_default_avatar);
+            } else {
+                holder.mDeleteIcon.setVisibility(View.INVISIBLE);
+                holder.mImageView.setVisibility(View.INVISIBLE);
+                holder.mTextView.setVisibility(View.INVISIBLE);
             }
         }
         //点击事件监听
-        if(isCanModify) {
-            if(isDeleteState()) {
+        if (isCanModify) {
+            if (isDeleteState()) {
                 holder.mDeleteIcon.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         onDeleteIconClick(mGroupMembers.get(position));
                     }
                 });
-            }else {
-                if(position==getCount()-1) {//减号
+            } else {
+                if (position == getCount() - 1) {//减号
                     holder.mImageView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -107,8 +110,15 @@ public abstract class GroupMembersGridAdapter extends BaseAdapter {
                         }
                     });
 
-                }else if(position==getCount()-2) {//加号
-                    onAddClick();
+                } else if (position == getCount() - 2) {//加号
+                    holder.mImageView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            onAddClick();
+                        }
+                    });
+                }else {
+                    holder.mImageView.setClickable(false);
                 }
             }
         }
@@ -133,6 +143,9 @@ public abstract class GroupMembersGridAdapter extends BaseAdapter {
     }
 
     public void refresh(List<String> groupMembers) {
+        if(groupMembers==null||groupMembers.size()==0) {
+            return;
+        }
         mGroupMembers.clear();
         mGroupMembers.addAll(groupMembers);
         notifyDataSetChanged();
@@ -143,7 +156,8 @@ public abstract class GroupMembersGridAdapter extends BaseAdapter {
         ImageView mDeleteIcon;
         TextView mTextView;
     }
-    public interface OnClickListener{
+
+    public interface OnClickListener {
 
     }
 }

@@ -51,14 +51,18 @@ public class EventListener {
 
         @Override
         public void onFriendRequestAccepted(String s) {
-            Module.getInstance().getDbManager().getInvitationDAO().updateInvitation(s, Invitation.InvokeState.INVITE_ACCEPT_BY_PEER);
+
+            Invitation invitation = new Invitation();
+            invitation.setUserInfo(new UserInfo(s));
+            invitation.setState(Invitation.InvokeState.INVITE_ACCEPT_BY_PEER);
+            Module.getInstance().getDbManager().getInvitationDAO().addInvitation(invitation);
             SpUtil.getInstance().put(SpUtil.IS_CONTACT_CHANGED,true);
             mLocalBroadcast.sendBroadcast(new Intent(Constant.INVITATION_CHANGED));
         }
 
         @Override
         public void onFriendRequestDeclined(String s) {
-            Module.getInstance().getDbManager().getInvitationDAO().deleteInvitation(s);
+//            Module.getInstance().getDbManager().getInvitationDAO().deleteInvitation(s);
             SpUtil.getInstance().put(SpUtil.IS_CONTACT_CHANGED,true);
             mLocalBroadcast.sendBroadcast(new Intent(Constant.INVITATION_CHANGED));
         }

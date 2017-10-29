@@ -30,16 +30,21 @@ public class InvitationDAO {
         List<Invitation> invitationList = new ArrayList<>();
         while (cursor.moveToNext()) {
             Invitation invitation = new Invitation();
-            UserInfo userInfo = new UserInfo();
-            userInfo.setHxid(cursor.getString(cursor.getColumnIndex(ContactTable.COL_HXID)));
-            userInfo.setName(cursor.getString(cursor.getColumnIndex(ContactTable.COL_NAME)));
-            userInfo.setPhoto(cursor.getString(cursor.getColumnIndex(ContactTable.COL_PHOTO)));
-            userInfo.setNick(cursor.getString(cursor.getColumnIndex(ContactTable.COL_NICK)));
-            invitation.setUserInfo(userInfo);
-            String groupId=cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_HXID));
-            String groupName = cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_NAME));
-            Group group = new Group(groupId,groupName,"");
-            invitation.setGroup(group);
+            String groupId = cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_HXID));
+            if(groupId==null) {
+                UserInfo userInfo = new UserInfo();
+                userInfo.setHxid(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_HXID)));
+                userInfo.setName(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_NAME)));
+                userInfo.setPhoto(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_PHOTO)));
+                userInfo.setNick(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_NICK)));
+                invitation.setUserInfo(userInfo);
+            }else{
+                String groupName = cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_NAME));
+                String inviter = cursor.getString(cursor.getColumnIndex(InvitationTable.COL_HXID));
+                Group group = new Group(groupId, groupName, inviter);
+                invitation.setGroup(group);
+            }
+
             invitation.setReason(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_REASON)));
             invitation.setState(int2InvokeState(cursor.getInt(cursor.getColumnIndex(InvitationTable.COL_STATE))));
             invitationList.add(invitation);
@@ -58,16 +63,21 @@ public class InvitationDAO {
         Invitation invitation = null;
         if (cursor.moveToNext()) {
             invitation = new Invitation();
-            UserInfo userInfo = new UserInfo();
-            userInfo.setHxid(cursor.getString(cursor.getColumnIndex(ContactTable.COL_HXID)));
-            userInfo.setName(cursor.getString(cursor.getColumnIndex(ContactTable.COL_NAME)));
-            userInfo.setPhoto(cursor.getString(cursor.getColumnIndex(ContactTable.COL_PHOTO)));
-            userInfo.setNick(cursor.getString(cursor.getColumnIndex(ContactTable.COL_NICK)));
-            invitation.setUserInfo(userInfo);
-            String groupId=cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_HXID));
-            String groupName = cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_NAME));
-            Group group = new Group(groupId,groupName,"");
-            invitation.setGroup(group);
+            String groupId = cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_HXID));
+            if(groupId==null) {
+                UserInfo userInfo = new UserInfo();
+                userInfo.setHxid(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_HXID)));
+                userInfo.setName(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_NAME)));
+                userInfo.setPhoto(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_PHOTO)));
+                userInfo.setNick(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_NICK)));
+                invitation.setUserInfo(userInfo);
+            }else{
+                String groupName = cursor.getString(cursor.getColumnIndex(InvitationTable.COL_GROUP_NAME));
+                String inviter = cursor.getString(cursor.getColumnIndex(InvitationTable.COL_HXID));
+                Group group = new Group(groupId, groupName, inviter);
+                invitation.setGroup(group);
+            }
+
             invitation.setReason(cursor.getString(cursor.getColumnIndex(InvitationTable.COL_REASON)));
             invitation.setState(int2InvokeState(cursor.getInt(cursor.getColumnIndex(InvitationTable.COL_STATE))));
         }
@@ -78,29 +88,44 @@ public class InvitationDAO {
     public void updateInvitation(String hxid, Invitation.InvokeState state) {
         SQLiteDatabase database = mHelper.getReadableDatabase();
         String sql = "update " + InvitationTable.TABLE_NAME + " set " + InvitationTable.COL_STATE +
-                "=" + state.ordinal() + " where " + InvitationTable.COL_HXID + "='" + hxid +"';";
+                "=" + state.ordinal() + " where " + InvitationTable.COL_HXID + "='" + hxid + "';";
         database.execSQL(sql);
     }
 
     public void deleteInvitation(String hxid) {
         SQLiteDatabase database = mHelper.getReadableDatabase();
-        database.delete(InvitationTable.TABLE_NAME, InvitationTable.COL_HXID+"=?", new String[]{hxid});
+        database.delete(InvitationTable.TABLE_NAME, InvitationTable.COL_HXID + "=?", new String[]{hxid});
     }
 
     public void addInvitation(Invitation invitation) {
-        ContentValues values = ContactDAO.getContentValues(invitation.getUserInfo());
-        values.put(InvitationTable.COL_GROUP_HXID, invitation.getGroup().getGroupId());
-        values.put(InvitationTable.COL_GROUP_NAME, invitation.getGroup().getGroupName());
-        values.put(InvitationTable.COL_STATE,invitation.getState().ordinal());
+        UserInfo userInfo = invitation.getUserInfo();
+        ContentValues values = new ContentValues();
+        if (userInfo == null) {
+            values.put(InvitationTable.COL_GROUP_HXID, invitation.getGroup().getGroupId());
+            values.put(InvitationTable.COL_GROUP_NAME, invitation.getGroup().getGroupName());
+            values.put(InvitationTable.COL_HXID, invitation.getGroup().getInviterName());
+        } else {
+            ContentValues userValues = getContentValues(invitation.getUserInfo());
+            values.putAll(userValues);
+        }
+        values.put(InvitationTable.COL_STATE, invitation.getState().ordinal());
+        values.put(InvitationTable.COL_REASON,invitation.getReason());
         SQLiteDatabase database = mHelper.getReadableDatabase();
         database.replace(InvitationTable.TABLE_NAME, null, values);
     }
-
+    private ContentValues getContentValues(UserInfo userInfo) {
+        ContentValues values = new ContentValues();
+        values.put(InvitationTable.COL_HXID, userInfo.getHxid());
+        values.put(InvitationTable.COL_NAME, userInfo.getName());
+        values.put(InvitationTable.COL_NICK, userInfo.getNick());
+        values.put(InvitationTable.COL_PHOTO, userInfo.getPhoto());
+        return values;
+    }
     private Invitation.InvokeState int2InvokeState(int state) {
         if (state == Invitation.InvokeState.NEW_INVITE.ordinal()) {
             return Invitation.InvokeState.NEW_INVITE;
         }
-        if(state == Invitation.InvokeState.NEW_SELF_INVITE.ordinal()) {
+        if (state == Invitation.InvokeState.NEW_SELF_INVITE.ordinal()) {
             return Invitation.InvokeState.NEW_SELF_INVITE;
         }
         if (state == Invitation.InvokeState.INVITE_ACCEPT.ordinal()) {

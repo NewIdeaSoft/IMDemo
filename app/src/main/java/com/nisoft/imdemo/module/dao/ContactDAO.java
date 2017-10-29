@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.hyphenate.easeui.domain.EaseUser;
 import com.nisoft.imdemo.module.bean.UserInfo;
 
 import java.util.ArrayList;
@@ -90,7 +89,7 @@ public class ContactDAO {
         return userInfoList;
     }
 
-    public static ContentValues getContentValues(UserInfo userInfo) {
+    private ContentValues getContentValues(UserInfo userInfo) {
         ContentValues values = new ContentValues();
         values.put(ContactTable.COL_HXID, userInfo.getHxid());
         values.put(ContactTable.COL_NAME, userInfo.getName());

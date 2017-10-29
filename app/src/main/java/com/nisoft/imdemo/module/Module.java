@@ -4,10 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.nisoft.imdemo.module.bean.UserInfo;
-import com.nisoft.imdemo.module.dao.ContactDAO;
-import com.nisoft.imdemo.module.dao.InvitationDAO;
 import com.nisoft.imdemo.module.dao.UserDao;
-import com.nisoft.imdemo.module.db.ContactDB;
 import com.nisoft.imdemo.module.db.DBManager;
 
 import java.util.concurrent.ExecutorService;
@@ -34,7 +31,8 @@ public class Module {
 
     public void init(Context context){
         mContext = context;
-        new EventListener(mContext);
+        mUserDao = new UserDao(mContext);
+        EventListener eventListener = new EventListener(mContext);
     }
 
     public ExecutorService getGlobalThreadPool(){

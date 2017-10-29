@@ -1,9 +1,13 @@
 package com.nisoft.imdemo.controller.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 
 import com.hyphenate.chat.EMMessage;
@@ -18,6 +22,13 @@ public class ChattingActivity extends FragmentActivity {
     private String mHxid;
     private int mChatType;
     private EaseChatFragment mChatFragment;
+    private LocalBroadcastManager mLBM;
+    private BroadcastReceiver mLeaveGroupReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            finish();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +97,13 @@ public class ChattingActivity extends FragmentActivity {
         mChatFragment.setArguments(args);
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction().replace(R.id.chatting_fragment_content, mChatFragment).commit();
+        mLBM = LocalBroadcastManager.getInstance(this);
+        mLBM.registerReceiver(mLeaveGroupReceiver,new IntentFilter(Constant.ACTION_LEAVE_GROUP));
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mLBM.unregisterReceiver(mLeaveGroupReceiver);
+    }
 }

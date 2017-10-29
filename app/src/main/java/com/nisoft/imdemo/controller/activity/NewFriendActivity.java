@@ -14,7 +14,6 @@ import com.hyphenate.chat.EMClient;
 import com.hyphenate.exceptions.HyphenateException;
 import com.nisoft.imdemo.R;
 import com.nisoft.imdemo.module.Module;
-import com.nisoft.imdemo.module.bean.Invitation;
 import com.nisoft.imdemo.module.bean.UserInfo;
 
 public class NewFriendActivity extends Activity {
@@ -54,10 +53,10 @@ public class NewFriendActivity extends Activity {
         final String friendName = et_new_friend_name.getText().toString();
 
         UserInfo userInfo = new UserInfo();
-        userInfo.setName(friendName);
+        userInfo.setHxid(friendName);
         mNewFriendInfo = userInfo;
         ll_new_friend_search_result.setVisibility(View.VISIBLE);
-        tv_new_friend_search_result_name.setText(mNewFriendInfo.getName());
+        tv_new_friend_search_result_name.setText(mNewFriendInfo.getHxid());
 //        if(isOldFriend(friendName)) {
 //            btn_new_friend_add.setVisibility(View.GONE);
 //        }
@@ -88,15 +87,8 @@ public class NewFriendActivity extends Activity {
             @Override
             public void run() {
                 try {
-                    EMClient.getInstance().contactManager().addContact(mNewFriendInfo.getName(), "添加好友");
+                    EMClient.getInstance().contactManager().addContact(mNewFriendInfo.getHxid(), "添加好友");
                     toastText = "添加成功！";
-//                    Invitation invitation = new Invitation();
-//                    String friendName = tv_new_friend_search_result_name.getText().toString();
-//                    UserInfo userInfo = new UserInfo(friendName);
-//                    invitation.setUserInfo(userInfo);
-//                    invitation.setReason("向对方发送了一个好友请求");
-//                    invitation.setState(Invitation.InvokeState.NEW_SELF_INVITE);
-//                    Module.getInstance().getDbManager().getInvitationDAO().addInvitation(invitation);
                 } catch (HyphenateException e) {
                     e.printStackTrace();
                     toastText = "添加失败！错误：" + e.toString();

@@ -30,7 +30,11 @@ public class InvitationAdapter extends BaseAdapter {
     }
 
     public void refreshData(List<Invitation> invitationList) {
-        mInvitationList = invitationList;
+        if(invitationList==null||invitationList.size()==0) {
+            return;
+        }
+        mInvitationList.clear();
+        mInvitationList.addAll(invitationList);
         notifyDataSetChanged();
     }
 
@@ -52,7 +56,7 @@ public class InvitationAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         mCurrentInvitation = (Invitation) getItem(position);
-        ViewHolder holder;
+        ViewHolder holder = null;
         if (convertView == null) {
             holder = new ViewHolder();
             convertView = View.inflate(mContext, R.layout.item_invitation_list, null);
@@ -66,14 +70,6 @@ public class InvitationAdapter extends BaseAdapter {
         }
         holder.mAcceptButton.setVisibility(View.GONE);
         holder.mRejectButton.setVisibility(View.GONE);
-//        if(mCurrentInvitation.getState() == Invitation.InvokeState.NEW_SELF_INVITE) {
-//            holder.mTextViewStateInfo.setVisibility(View.VISIBLE);
-//            holder.mTextViewStateInfo.setText("等待对方处理好友请求");
-//        }else{
-//            holder.mLinearLayoutButtons.setVisibility(View.VISIBLE);
-//            holder.mAcceptButton.setVisibility(View.GONE);
-//            holder.mRejectButton.setVisibility(View.GONE);
-//        }
         UserInfo userInfo = mCurrentInvitation.getUserInfo();
         if (userInfo == null) {
             holder.mTextViewName.setText(mCurrentInvitation.getGroup().getGroupName());

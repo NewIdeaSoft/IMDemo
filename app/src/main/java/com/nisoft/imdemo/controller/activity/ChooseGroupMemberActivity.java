@@ -9,11 +9,14 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMGroup;
 import com.nisoft.imdemo.R;
 import com.nisoft.imdemo.controller.adapter.PickMemberAdapter;
 import com.nisoft.imdemo.module.Module;
 import com.nisoft.imdemo.module.bean.PickMemberItem;
 import com.nisoft.imdemo.module.bean.UserInfo;
+import com.nisoft.imdemo.utils.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +26,8 @@ public class ChooseGroupMemberActivity extends Activity {
     private ListView lv_choose_member;
     private List<PickMemberItem> mMemberItems = new ArrayList<>();
     private PickMemberAdapter mMemberAdapter;
+    private List<String> mExistMembers;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +67,18 @@ public class ChooseGroupMemberActivity extends Activity {
             PickMemberItem item = new PickMemberItem(user,false);
             mMemberItems.add(item);
         }
-        mMemberAdapter = new PickMemberAdapter(this,mMemberItems);
+        String groupId = getIntent().getStringExtra(Constant.EXTRA_GROUP_ID);
+        if(groupId!=null) {
+            EMGroup group = EMClient.getInstance().groupManager().getGroup(groupId);
+            if(group!=null) {
+                mExistMembers = group.getMembers();
+            }else{
+                mExistMembers = new ArrayList<>();
+            }
+
+        }
+
+        mMemberAdapter = new PickMemberAdapter(this,mMemberItems,mExistMembers);
         lv_choose_member.setAdapter(mMemberAdapter);
     }
 

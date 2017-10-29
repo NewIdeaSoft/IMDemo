@@ -20,10 +20,16 @@ import java.util.List;
 public class PickMemberAdapter extends BaseAdapter {
     private Context mContext;
     private List<PickMemberItem> mPickMemberItems;
+    private List<String> mExistMembers;
 
-    public PickMemberAdapter(Context context, List<PickMemberItem> pickMemberItems) {
+    public PickMemberAdapter(Context context, List<PickMemberItem> pickMemberItems, List<String> existMembers) {
         mContext = context;
         mPickMemberItems = pickMemberItems;
+        if(existMembers==null) {
+            mExistMembers=new ArrayList<>();
+        }else{
+            mExistMembers = existMembers;
+        }
     }
 
     public void setPickMemberItems(List<PickMemberItem> pickMemberItems) {
@@ -58,6 +64,9 @@ public class PickMemberAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         PickMemberItem item = mPickMemberItems.get(position);
+        if(mExistMembers.contains(item.getUserInfo().getHxid())) {
+            item.setChecked(true);
+        }
         holder.mCheckBox.setChecked(item.isChecked());
         holder.mTextView.setText(item.getUserInfo().getHxid());
         return convertView;
