@@ -205,7 +205,7 @@ public class GroupDetailInfoActivity extends Activity {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0 && mAdapter.isDeleteState()) {
             mAdapter.setDeleteState(false);
             mAdapter.notifyDataSetChanged();
-            return true;
+            return false;
         }
         return super.onKeyDown(keyCode, event);
     }

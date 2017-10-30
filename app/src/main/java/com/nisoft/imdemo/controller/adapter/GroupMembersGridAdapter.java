@@ -59,6 +59,7 @@ public abstract class GroupMembersGridAdapter extends BaseAdapter {
         if (isCanModify) {
             if (isDeleteState) {//可编辑删除
                 if (position < getCount() - 2) {
+                    holder.mImageView.setVisibility(View.VISIBLE);
                     holder.mImageView.setImageResource(R.drawable.em_default_avatar);
                     holder.mDeleteIcon.setVisibility(View.VISIBLE);
                 } else {
@@ -68,14 +69,17 @@ public abstract class GroupMembersGridAdapter extends BaseAdapter {
                 }
             } else {//可编辑非删除
                 if (position == getCount() - 2) {
+                    holder.mImageView.setVisibility(View.VISIBLE);
                     holder.mImageView.setImageResource(R.drawable.em_smiley_add_btn_nor);
                     holder.mTextView.setVisibility(View.INVISIBLE);
                     holder.mDeleteIcon.setVisibility(View.INVISIBLE);
                 } else if (position == getCount() - 1) {
+                    holder.mImageView.setVisibility(View.VISIBLE);
                     holder.mImageView.setImageResource(R.drawable.em_smiley_minus_btn_nor);
                     holder.mTextView.setVisibility(View.INVISIBLE);
                     holder.mDeleteIcon.setVisibility(View.INVISIBLE);
                 } else {
+                    holder.mImageView.setVisibility(View.VISIBLE);
                     holder.mImageView.setImageResource(R.drawable.em_default_avatar);
                     holder.mTextView.setVisibility(View.VISIBLE);
                     holder.mTextView.setText((String) getItem(position));
@@ -84,6 +88,8 @@ public abstract class GroupMembersGridAdapter extends BaseAdapter {
         } else {//不可编辑
             if (position < getCount() - 2) {
                 holder.mDeleteIcon.setVisibility(View.INVISIBLE);
+                holder.mImageView.setVisibility(View.VISIBLE);
+                holder.mTextView.setVisibility(View.VISIBLE);
                 holder.mTextView.setText(mGroupMembers.get(position));
                 holder.mImageView.setImageResource(R.drawable.em_default_avatar);
             } else {
